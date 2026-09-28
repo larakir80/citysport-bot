@@ -12,17 +12,20 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY
 });
 
+const MODEL = "gemini-3.8-flash";
+
 app.get("/", (req, res) => {
   res.send("City Sport Bot работает!");
 });
 
-// Простая страница для проверки бота
+// Тестовая страница
 app.get("/chat", (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html lang="ru">
     <head>
       <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
       <title>City Sport Bot</title>
     </head>
     <body>
@@ -42,10 +45,11 @@ app.get("/chat", (req, res) => {
   `);
 });
 
+// Проверка Gemini через браузер
 app.post("/chat-test", async (req, res) => {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: MODEL,
       contents: req.body.message
     });
 
@@ -61,12 +65,20 @@ app.post("/chat-test", async (req, res) => {
   }
 });
 
-// Этот адрес позже будет использовать чат на сайте City Sport
+// API для будущего виджета City Sport
 app.post("/chat", async (req, res) => {
   try {
+    const message = req.body.message;
+
+    if (!message) {
+      return res.status(400).json({
+        error: "Сообщение отсутствует"
+      });
+    }
+
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: req.body.message
+      model: MODEL,
+      contents: message
     });
 
     res.json({
